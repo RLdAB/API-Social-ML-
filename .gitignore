@@ -1,0 +1,5 @@
+/bin/
+/vendor/
+.env
+*.test
+.DS_Store
