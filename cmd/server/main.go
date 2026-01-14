@@ -14,8 +14,8 @@ import (
 func main() {
 	// 1 - Configuraçāo Inicial
 	port := os.Getenv("PORT")
-	if port == "8080" {
-
+	if port == "" {
+		port = "8080"
 	}
 
 	//2 - Inicializaçāo de Dependências
@@ -26,8 +26,10 @@ func main() {
 	//Serviços de Aplicaçāo
 	followService := application.NewFollowService(userRepo)
 
+	userService := application.NewUserService(userRepo)
+
 	//Handlers HTTP
-	userHandler := api.NewUserHandlers(followService)
+	userHandler := api.NewUserHandlers(followService, userService)
 
 	// 3 - Configuraçāo do Router
 	r := chi.NewRouter()
@@ -36,9 +38,4 @@ func main() {
 	// 4 - Inicializaçāo do Servidor
 	log.Printf("Server running on port %s", port)
 	log.Fatal(http.ListenAndServe(":"+port, r))
-}
-
-func setupRoutes(r *chi.Mux, userHandler *api.UserHandlers) {
-	//Configurar rotas de User
-	r.Post("/users/{userId}/follow/{sellerId}", userHandler.FollowUser())
 }

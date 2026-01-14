@@ -14,11 +14,6 @@ type UserRepo struct {
 	db *gorm.DB
 }
 
-// GetFollowerList implements [domain.UserRepository].
-func (r *UserRepo) GetFollowerList(userID int, order string) ([]domain.User, error) {
-	panic("unimplemented")
-}
-
 // GetRecentPosts implements [domain.UserRepository].
 func (r *UserRepo) GetRecentPosts(userID int, weeks int) ([]domain.Promotion, error) {
 	panic("unimplemented")

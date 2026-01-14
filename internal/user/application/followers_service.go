@@ -10,5 +10,6 @@ func (s *FollowersService) GetCount(userID int) (int, error) {
 	if !s.repo.UserExists(userID) {
 		return 0, domain.ErrUserNotFound
 	}
-	return s.repo.GetFollowersCount(userID), nil
+
+	return s.repo.GetFollowersCount(userID)
 }

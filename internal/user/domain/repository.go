@@ -1,7 +1,6 @@
 package domain
 
 import (
-	"errors"
 	"time"
 )
 
@@ -27,17 +26,11 @@ type UserRepository interface {
 
 // Estruturas auxiliares
 
-type Follow struct {
-	FollowerID int       `gorm:"primaryKey"`
-	SellerID   int       `gorm:"primaryKey"`
-	CreatedAt  time.Time `gorm:"autoCreatetIME"`
-}
-
 type Post struct {
 	ID        int       `gorm:"primaryKey"`
 	UserID    int       `gorm:"index"`
 	Content   string    `gorm:"type:text"`
-	CreatedAt time.Time `gorm:"autoCreateime"`
+	CreatedAt time.Time `gorm:"autoCreateTime"`
 	//Campos para US-0006
 	Category int `gorm:"index"`
 	Price    float64
@@ -49,12 +42,3 @@ type Promotion struct {
 	PostID    int `gorm:"primaryKey"`
 	ExpiresAt time.Time
 }
-
-// Validaçōes customer
-
-var (
-	ErrUserNotFound     = errors.New("user not found")
-	ErrAlreadyFollowing = errors.New("user is already following this seller")
-	ErrNotASeller       = errors.New("target user is not a seller")
-	ErrSelfFollow       = errors.New("cannot follow yourself")
-)

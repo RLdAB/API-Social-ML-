@@ -6,17 +6,20 @@ import (
 	"strconv"
 
 	"github.com/RLdAB/API-Social-ML/internal/user/application"
+	"github.com/RLdAB/API-Social-ML/internal/user/domain"
 	"github.com/go-chi/chi/v5"
 )
 
 type UserHandlers struct {
 	followService *application.FollowService
+	userService   *application.UserService
 }
 
 // NewUserHandlers é o construtor recomendado para injeçāo de dependências
-func NewUserHandlers(fs *application.FollowService) *UserHandlers {
+func NewUserHandlers(fs *application.FollowService, us *application.UserService) *UserHandlers {
 	return &UserHandlers{
 		followService: fs,
+		userService:   us,
 	}
 }
 
@@ -67,16 +70,16 @@ func (h *UserHandlers) GetFollowingList(w http.ResponseWriter, r *http.Request) 
 	}
 	order := r.URL.Query().Get("order")
 
-	list, err := s.followService.GetFollowingList(userID, order)
+	list, err := h.followService.GetFollowingList(userID, order)
 	if err != nil {
 		handleServiceError(w, err)
 		return
 	}
-  
+
 	w.Header().Set("Content-Type", "application/json")
-    json.NewEncoder(w).Encode(map[string]interface(){
-	"following": list,
-})
+	json.NewEncoder(w).Encode(map[string]interface{}{
+		"following": list,
+	})
 
 }
 
@@ -108,14 +111,34 @@ func (h *UserHandlers) FollowUser(w http.ResponseWriter, r *http.Request) {
 	})
 }
 
+func (h *UserHandlers) CreateUser(w http.ResponseWriter, r *http.Request) {
+	var user domain.User
+	if err := json.NewDecoder(r.Body).Decode(&user); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+	if user.Name == "" {
+		writeError(w, http.StatusBadRequest, "name is required")
+	}
+	if err := h.userService.CreateUser(&user); err != nil {
+		handleServiceError(w, err)
+		return
+	}
+	w.Header().Set("Content-Type", "application/json")
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(user)
+}
+
 // handlerServiceError mapeia erros de domínio para códigos HTTP apropriados
 func handleServiceError(w http.ResponseWriter, err error) {
 	switch err {
-	case application.ErrUserNotFound:
+	case domain.ErrUserNotFound:
 		writeError(w, http.StatusNotFound, err.Error())
-	case application.ErrSelfFollow:
+	case domain.ErrAlreadyFollowing:
 		writeError(w, http.StatusBadRequest, err.Error())
-	case application.ErrNotASeller:
+	case domain.ErrSelfFollow:
+		writeError(w, http.StatusBadRequest, err.Error())
+	case domain.ErrNotASeller:
 		writeError(w, http.StatusUnprocessableEntity, err.Error())
 	default:
 		writeError(w, http.StatusInternalServerError, "internal server error")
