@@ -1,7 +1,11 @@
 package domain
 
-type Follow struc {
-	ID int `gorm:"primaryKey"`
-	FollowerID int
-	Seller ID int
+import (
+	"time"
+)
+
+type Follow struct {
+	FollowerID int       `gorm:"primaryKey"`
+	SellerID   int       `gorm:"primaryKey"`
+	CreatedAt  time.Time `gorm:"autoCreateTime"`
 }

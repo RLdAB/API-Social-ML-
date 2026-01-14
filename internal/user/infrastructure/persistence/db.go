@@ -3,6 +3,7 @@ package persistence
 import (
 	"log"
 
+	"github.com/RLdAB/API-Social-ML/internal/user/domain"
 	"gorm.io/driver/postgres"
 	"gorm.io/gorm"
 )
@@ -13,6 +14,11 @@ func NewDB() *gorm.DB {
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
 	if err != nil {
 		log.Fatalf("falha ao conectar ao banco: %v", err)
+	}
+
+	// Migraçāo AQUI:
+	if err := db.AutoMigrate(&domain.User{}); err != nil {
+		log.Fatalf("falha ao fazer AutoMigrate User: %v", err)
 	}
 	return db
 }
