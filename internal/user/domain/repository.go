@@ -1,14 +1,11 @@
 package domain
 
-import (
-	"time"
-)
-
 //Repository.go - Interface completa para operaçōes de persistência
 
 type UserRepository interface {
 	//Operaçōes básicas de usuário
 	CreateUser(user *User) error
+	// Retorna um usuário via ID, ou erro se não encontrado.
 	FindByID(id int) (*User, error)
 	UserExists(id int) bool
 
@@ -21,24 +18,10 @@ type UserRepository interface {
 
 	// Posts (US-0005, US-0006)
 	CreatePost(post *Post) error // US-0005
-	GetRecentPosts(userID int, weeks int) ([]Promotion, error)
-}
-
-// Estruturas auxiliares
-
-type Post struct {
-	ID        int       `gorm:"primaryKey"`
-	UserID    int       `gorm:"index"`
-	Content   string    `gorm:"type:text"`
-	CreatedAt time.Time `gorm:"autoCreateTime"`
-	//Campos para US-0006
-	Category int `gorm:"index"`
-	Price    float64
-	HasPromo bool
-	Discount float64
-}
-
-type Promotion struct {
-	PostID    int `gorm:"primaryKey"`
-	ExpiresAt time.Time
+	GetRecentPromoPosts(userID int, weeks int) ([]Promotion, error)
+	// Retorna posts recentes dos vendedores que userID segue (últimas N semanas)
+	GetRecentFollowedPosts(userID int, weeks int) ([]Post, error)
+	CountPromotionsBySeller(sellerId int) (int, error)
+	ListUsers() ([]User, error)
+	UpdateUser(id int, user *User) error
 }

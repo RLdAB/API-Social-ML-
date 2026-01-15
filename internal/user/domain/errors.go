@@ -9,5 +9,8 @@ var (
 	ErrAlreadyFollowing = errors.New("user is already following this seller")
 	ErrSelfFollow       = errors.New("cannot follow yourself")
 	ErrNotASeller       = errors.New("target user is not a seller")
+	ErrInvalidPost      = errors.New("invalid post body: userID and content required")
+	ErrNotAseller       = errors.New("user must be a seller to create post")
+	ErrInvalidUser      = errors.New("user is invalid")
 	//Adicionar outros depois de orientações do Luiz
 )

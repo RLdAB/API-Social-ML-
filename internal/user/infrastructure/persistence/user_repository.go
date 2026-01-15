@@ -14,11 +14,6 @@ type UserRepo struct {
 	db *gorm.DB
 }
 
-// GetRecentPosts implements [domain.UserRepository].
-func (r *UserRepo) GetRecentPosts(userID int, weeks int) ([]domain.Promotion, error) {
-	panic("unimplemented")
-}
-
 // NewUserRepository é o construtor (inicializa o repositório)
 func NewUserRepository(db *gorm.DB) *UserRepo {
 	return &UserRepo{db: db}
@@ -97,7 +92,7 @@ func (r *UserRepo) GetFollowingList(userID int, order string) ([]domain.User, er
 	var following []domain.User
 	// join para seguidos
 	query := r.db.Table("users").
-		Joins("JOIN follows ON users.id = follows.seller.id").
+		Joins("JOIN follows ON users.id = follows.seller_id").
 		Where("follows.follower_id = ?", userID)
 	if err := query.Find(&following).Error; err != nil {
 		return nil, err
@@ -140,8 +135,8 @@ func (r *UserRepo) CreatePost(post *domain.Post) error {
 	return r.db.Create(post).Error
 }
 
-// GetRecentPosts retorna posts em promoçāo das últimas X semanas
-func (r *UserRepo) GetRecentePosts(userID int, weeks int) ([]domain.Promotion, error) {
+// GetRecentPromoPosts retorna posts em promoçāo das últimas X semanas
+func (r *UserRepo) GetRecentPromoPosts(userID int, weeks int) ([]domain.Promotion, error) {
 	// Exemplo: buscar promoçōes associadas ao userID nos posts mais recentes (simplicado)
 	var promotions []domain.Promotion
 	// limite de tempo
@@ -151,4 +146,57 @@ func (r *UserRepo) GetRecentePosts(userID int, weeks int) ([]domain.Promotion, e
 		Where("posts.user_id = ? AND posts.created_at >= ?", userID, cutoff).
 		Find(&promotions).Error
 	return promotions, err
+}
+
+func (r *UserRepo) GetRecentFollowedPosts(userID int, weeks int) ([]domain.Post, error) {
+	var posts []domain.Post
+	// Pegar a data de corte
+	cutoff := time.Now().AddDate(0, 0, -7*weeks)
+	// Busque IDs dos vendedores seguidos
+	// SELECT p.* FROM posts p
+	// JOIN follows f ON p.user_id = f.seller_id
+	// WHERE f.follower_id = ? AND p.created_at >- ?
+
+	err := r.db.Table("posts").
+		Select("posts.*").
+		Joins("JOIN follows ON posts.user_id = follows.seller_id").
+		Where("follows.follower_id = ?", userID).
+		Where("posts.created_at >= ?", cutoff).
+		Order("posts.created_at DESC").
+		Find(&posts).Error
+
+	return posts, err
+}
+
+func (r *UserRepo) CountPromotionsBySeller(sellerId int) (int, error) {
+	var count int64
+	err := r.db.Model(&domain.Post{}).
+		Where("user_id = ? AND has_promo = ?", sellerId, true).
+		Count(&count).Error
+	return int(count), err
+}
+
+func (r *UserRepo) ListUsers() ([]domain.User, error) {
+	var users []domain.User
+	// r.db.Find(&users) busca todos os registros da tabela users e preenche o slice
+	err := r.db.Find(&users).Error
+	return users, err
+}
+
+func (r *UserRepo) UpdateUser(id int, updated *domain.User) error {
+	var user domain.User
+	// Procurar usuário existente
+	if err := r.db.First(&user, id).Error; err != nil {
+		if errors.Is(err, gorm.ErrRecordNotFound) {
+			return domain.ErrUserNotFound
+		}
+		return err
+	}
+
+	// Atualizar campos (aquilo que pode/merce ser atualizado)
+	user.Name = updated.Name
+	user.IsSeller = updated.IsSeller
+
+	// Salvar no banco
+	return r.db.Save(&user).Error
 }

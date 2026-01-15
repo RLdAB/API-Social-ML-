@@ -48,3 +48,19 @@ func (s *FollowService) GetFollowerList(userID int, order string) ([]domain.User
 func (s *FollowService) GetFollowingList(userID int, order string) ([]domain.User, error) {
 	return s.repo.GetFollowingList(userID, order)
 }
+
+func (s *FollowService) Unfollow(userID, sellerID int) error {
+	// Valida existência dos usuários
+	if !s.repo.UserExists(userID) || !s.repo.UserExists(sellerID) {
+		return domain.ErrUserNotFound
+	}
+	// Valida se o seller é de fato vendedor (opcional)
+	seller, err := s.repo.FindByID(sellerID)
+	if err != nil {
+		return err
+	}
+	if !seller.IsSeller {
+		return domain.ErrNotASeller
+	}
+	return s.repo.DeleteFollow(userID, sellerID)
+}
