@@ -13,3 +13,11 @@ func (s *FollowersService) GetCount(userID int) (int, error) {
 
 	return s.repo.GetFollowersCount(userID)
 }
+
+func (s *FollowersService) GetFollowingList(userID int, order string) ([]domain.User, error) {
+	// Opcional - Adicionei validaçāo se o usuário existe
+	if !s.repo.UserExists(userID) {
+		return nil, domain.ErrUserNotFound
+	}
+	return s.repo.GetFollowingList(userID, order)
+}

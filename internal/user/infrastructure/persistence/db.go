@@ -8,7 +8,7 @@ import (
 	"gorm.io/gorm"
 )
 
-// NewDB inicializa e retorna a conexāo com o banco de dados
+// NewDB inicializa e retorna a conexāo com o banco de dados e faz a migraçāo das tabelas
 func NewDB() *gorm.DB {
 	dsn := "host=postgres user=socialmeli password=socialmeli dbname=socialmeli port=5432 sslmode=disable"
 	db, err := gorm.Open(postgres.Open(dsn), &gorm.Config{})
@@ -17,7 +17,7 @@ func NewDB() *gorm.DB {
 	}
 
 	// Migraçāo AQUI:
-	if err := db.AutoMigrate(&domain.User{}); err != nil {
+	if err := db.AutoMigrate(&domain.User{}, &domain.Follow{}, &domain.Post{}); err != nil {
 		log.Fatalf("falha ao fazer AutoMigrate User: %v", err)
 	}
 	return db
