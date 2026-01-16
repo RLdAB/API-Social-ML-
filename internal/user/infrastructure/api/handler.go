@@ -163,8 +163,9 @@ func (h *UserHandlers) GetRecentFollowedPosts(w http.ResponseWriter, r *http.Req
 			weeks = wks
 		}
 	}
+	order := r.URL.Query().Get("order")
 
-	posts, err := h.userService.GetRecentFollowedPosts(userID, weeks)
+	posts, err := h.userService.GetRecentFollowedPosts(userID, weeks, order)
 	if err != nil {
 		if err == domain.ErrUserNotFound {
 			writeError(w, http.StatusNotFound, err.Error())
