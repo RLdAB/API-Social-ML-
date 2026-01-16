@@ -81,7 +81,7 @@ func (r *UserRepo) GetFollowerList(userID int, order string) ([]domain.User, err
 		})
 	default:
 		// Sem ordenaçāo ou ordenaçāo inválida, só retorna
-		return nil, errors.New("invalid order parameter")
+		return nil, errors.New("invalid order parameter (use name_asc ou name_desc)")
 	}
 
 	return followers, nil
@@ -108,6 +108,7 @@ func (r *UserRepo) GetFollowingList(userID int, order string) ([]domain.User, er
 		})
 	default:
 		//Sem ordenaçāo ou ordenaçāo inválida, só retorna
+		return nil, errors.New("invalid order parameter (use name_asc ou name_desc)")
 	}
 	return following, nil
 }
@@ -148,7 +149,7 @@ func (r *UserRepo) GetRecentPromoPosts(userID int, weeks int) ([]domain.Promotio
 	return promotions, err
 }
 
-func (r *UserRepo) GetRecentFollowedPosts(userID int, weeks int) ([]domain.Post, error) {
+func (r *UserRepo) GetRecentFollowedPosts(userID int, weeks int, order string) ([]domain.Post, error) {
 	var posts []domain.Post
 	// Pegar a data de corte
 	cutoff := time.Now().AddDate(0, 0, -7*weeks)
@@ -157,15 +158,26 @@ func (r *UserRepo) GetRecentFollowedPosts(userID int, weeks int) ([]domain.Post,
 	// JOIN follows f ON p.user_id = f.seller_id
 	// WHERE f.follower_id = ? AND p.created_at >- ?
 
-	err := r.db.Table("posts").
+	q := r.db.Table("posts").
 		Select("posts.*").
 		Joins("JOIN follows ON posts.user_id = follows.seller_id").
 		Where("follows.follower_id = ?", userID).
 		Where("posts.created_at >= ?", cutoff).
-		Order("posts.created_at DESC").
-		Find(&posts).Error
 
-	return posts, err
+	switch order {
+	case "date_asc":
+		q = q.Order("posts.created_at ASC")
+	case "date_desc":
+		q = q.Order("post.created_at DESC")
+	default:
+		// Ordem padrāo: do mais recente primeiro
+		q = q.Order("posts.created_at DESC")
+	}
+
+	if err := q.Find(&posts).Error; err != nil {
+		return nil, err
+	}
+	return posts, nil
 }
 
 func (r *UserRepo) CountPromotionsBySeller(sellerId int) (int, error) {

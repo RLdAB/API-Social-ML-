@@ -21,3 +21,5 @@ func (s *FollowersService) GetFollowingList(userID int, order string) ([]domain.
 	}
 	return s.repo.GetFollowingList(userID, order)
 }
+
+

@@ -20,7 +20,7 @@ type UserRepository interface {
 	CreatePost(post *Post) error // US-0005
 	GetRecentPromoPosts(userID int, weeks int) ([]Promotion, error)
 	// Retorna posts recentes dos vendedores que userID segue (últimas N semanas)
-	GetRecentFollowedPosts(userID int, weeks int) ([]Post, error)
+	GetRecentFollowedPosts(userID int, weeks int, order string) ([]Post, error)
 	CountPromotionsBySeller(sellerId int) (int, error)
 	ListUsers() ([]User, error)
 	UpdateUser(id int, user *User) error
