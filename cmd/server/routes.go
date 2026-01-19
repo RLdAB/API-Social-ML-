@@ -18,6 +18,7 @@ func setupRoutes(r *chi.Mux, userHandlers *api.UserHandlers) {
 	r.Get("/users/{userId}/followers/list", userHandlers.GetFollowerList)               // US-0008
 	r.Get("/users/{userId}/followed/list", userHandlers.GetFollowingList)               // US-0008
 	r.Get("/products/followed/{userId}/list", userHandlers.GetRecentFollowedPosts)      // US-0009
+	r.Post("/products/promo-pub", userHandlers.CreatePromoProduct)                      // US-0010
 	r.Get("/sellers/{sellerId}/promotions/count", userHandlers.CountPromotionsBySeller) // US-0011
 	r.Get("/users", userHandlers.ListUsers)
 	r.Get("/users/{userId}", userHandlers.GetUserByID)

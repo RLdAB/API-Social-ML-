@@ -1,7 +1,10 @@
 package application
 
 import (
+	"strings"
+
 	"github.com/RLdAB/API-Social-ML/internal/user/domain"
+	"github.com/RLdAB/API-Social-ML/internal/user/utils"
 )
 
 type UserService struct {
@@ -14,7 +17,7 @@ func NewUserService(repo domain.UserRepository) *UserService {
 
 func (s *UserService) CreateUser(user *domain.User) error {
 	// Depois validar outras regras com orientaçāo do Luiz
-	if user.Name == "" {
+	if strings.TrimSpace(user.Name) == "" {
 		return domain.ErrInvalidUser
 	}
 	return s.repo.CreateUser(user)
@@ -73,4 +76,42 @@ func (s *UserService) UpdateUser(id int, updated *domain.User) error {
 		return domain.ErrInvalidUser // definir este erro em errors.go
 	}
 	return s.repo.UpdateUser(id, updated)
+}
+
+func (s *UserService) CreatePromoProduct(payload *domain.PromoProductPayload) error {
+	// Validaçāo: usuário existe e é vendedor
+	user, err := s.repo.FindByID(payload.UserID)
+	if err != nil {
+		return err
+	}
+	if !user.IsSeller {
+		return domain.ErrNotASeller
+	}
+
+	// Validaçāo: has_promo e desconto obrigatórios
+	if !payload.HasPromo || payload.Discount <= 0 {
+		return domain.ErrInvalidPromotion // definir esse erro em errors.go
+	}
+
+	// Validaçåo da data
+	if payload.Date == "" {
+		return domain.ErrInvalidDate // definir esse erro em errors.go
+	}
+
+	// Criaçāo do registro
+	post := domain.Post{
+		UserID:      payload.UserID,
+		CreatedAt:   utils.ParseDateOrNow(payload.Date), //implementar essa lógica
+		ProductID:   payload.Product.ProductID,
+		ProductName: payload.Product.ProductName,
+		Type:        payload.Product.Type,
+		Brand:       payload.Product.Brand,
+		Color:       payload.Product.Color,
+		Notes:       payload.Product.Notes,
+		Category:    payload.Category,
+		Price:       payload.Price,
+		HasPromo:    payload.HasPromo,
+		Discount:    payload.Discount,
+	}
+	return s.repo.CreatePost(&post)
 }

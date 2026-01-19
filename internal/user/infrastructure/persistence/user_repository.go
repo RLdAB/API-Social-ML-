@@ -59,7 +59,7 @@ func (r *UserRepo) DeleteFollow(followerID, sellerID int) error {
 func (r *UserRepo) GetFollowerList(userID int, order string) ([]domain.User, error) {
 	var followers []domain.User
 
-	// Query base de join para seguidores
+	// Query (consulta ao banco de dados) base de join (coluna comum entre duas tabelas) para seguidores
 	query := r.db.Table("users").
 		Joins("JOIN follows ON users.id = follows.follower_id").
 		Where("follows.seller_id = ?", userID)

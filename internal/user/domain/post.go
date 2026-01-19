@@ -5,14 +5,21 @@ import (
 )
 
 type Post struct {
-	ID        int       `json:"id" gorm:"primaryKey;autoIncrement"`
-	UserID    int       `json:"user_id" gorm:"index"` // o vendedor que faz o post
-	Content   string    `json:"content" gorm:"type:text"`
-	CreatedAt time.Time `json:"created_at" gorm:"autoCreateTime"`
-	Category  int       `json:"category" gorm:"index"`
-	Price     float64   `json:"price"`
-	HasPromo  bool      `json:"has_promo"`
-	Discount  float64   `json:"discount"`
+	ID          int `json:"id" gorm:"primaryKey;autoIncrement"`
+	UserID      int `json:"user_id" gorm:"index"` // o vendedor que faz o post
+	Date        time.Time
+	ProductID   int
+	ProductName string
+	Type        string
+	Brand       string
+	Color       string
+	Notes       string
+	Content     string    `json:"content" gorm:"type:text"`
+	CreatedAt   time.Time `json:"created_at" gorm:"autoCreateTime"`
+	Category    int       `json:"category" gorm:"index"`
+	Price       float64   `json:"price"`
+	HasPromo    bool      `json:"has_promo"`
+	Discount    float64   `json:"discount"`
 }
 
 type Promotion struct {
