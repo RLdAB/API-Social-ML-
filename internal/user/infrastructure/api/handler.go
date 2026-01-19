@@ -121,6 +121,10 @@ func (h *UserHandlers) CreateUser(w http.ResponseWriter, r *http.Request) {
 		writeError(w, http.StatusBadRequest, "name is required")
 	}
 	if err := h.userService.CreateUser(&user); err != nil {
+		if err == domain.ErrInvalidUser {
+			writeError(w, http.StatusBadRequest, err.Error())
+			return
+		}
 		handleServiceError(w, err)
 		return
 	}
@@ -273,6 +277,22 @@ func (h *UserHandlers) UpdateUser(w http.ResponseWriter, r *http.Request) {
 	}
 
 	w.WriteHeader(http.StatusNoContent) // 204 No Content para update bem-sucedido
+}
+
+func (h *UserHandlers) CreatePromoProduct(w http.ResponseWriter, r *http.Request) {
+	var payload domain.PromoProductPayload
+	if err := json.NewDecoder(r.Body).Decode(&payload); err != nil {
+		writeError(w, http.StatusBadRequest, "invalid request body")
+		return
+	}
+	if err := h.userService.CreatePromoProduct(&payload); err != nil {
+		handleServiceError(w, err)
+		return
+	}
+	w.WriteHeader(http.StatusCreated)
+	json.NewEncoder(w).Encode(map[string]string{
+		"message": "Promo product published successfully",
+	})
 }
 
 // handlerServiceError mapeia erros de domínio para códigos HTTP apropriados
