@@ -1,36 +1,34 @@
-version: '3.8'
-
 services:
   app:
-    build:
-      context: .
-      dockerfile: Dockerfile
+    build: .
     ports:
       - "8080:8080"
-    environment:
-      - DB_HOST=postgres
-      - DB_PORT=5432
-    depends_on:
-      - postgres
     restart: unless-stopped
+    environment:
+      DB_HOST: postgres
+      DB_PORT: "5432"
+      DB_USER: socialmeli
+      DB_PASSWORD: socialmeli
+      DB_NAME: socialmeli
+    depends_on:
+      postgres:
+        condition: service_healthy
 
   postgres:
-    image: postgres:16
+    image: postgres:13
     environment:
-      - POSTGRES_USER=socialmeli
-      - POSTGRES_PASSWORD=socialmeli
-      - POSTGRES_DB=socialmeli
+      POSTGRES_USER: socialmeli
+      POSTGRES_PASSWORD: socialmeli
+      POSTGRES_DB: socialmeli
     ports:
       - "5432:5432"
     volumes:
       - postgres_data:/var/lib/postgresql/data
-      - ./migration:/docker-entrypoint-initdb.d # Executa migraçōes na inicializaçāo
-    restart: unless-stopped
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U socialmeli -d socialmeli"]
-      interval: 10s
+      interval: 5s
       timeout: 5s
-      retries: 5
+      retries: 10
 
 volumes:
-  postgres_data: # Volume será criado automaticamente
+  postgres_data:

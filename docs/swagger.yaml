@@ -1,0 +1,676 @@
+basePath: /
+definitions:
+  api.CreateUserRequest:
+    properties:
+      is_seller:
+        type: boolean
+      name:
+        type: string
+    type: object
+  api.FeedPostResponse:
+    properties:
+      category:
+        type: string
+      content:
+        type: string
+      created_at:
+        type: string
+      discount:
+        type: number
+      has_promo:
+        type: boolean
+      id:
+        type: integer
+      price:
+        type: number
+      product_id:
+        type: integer
+      product_name:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  api.FollowResponse:
+    properties:
+      message:
+        type: string
+    type: object
+  api.FollowedPostsResponse:
+    properties:
+      count:
+        type: integer
+      posts:
+        items:
+          $ref: '#/definitions/api.FeedPostResponse'
+        type: array
+      user_id:
+        type: integer
+      weeks:
+        type: integer
+    type: object
+  api.FollowersCountResponse:
+    properties:
+      followers_count:
+        type: integer
+    type: object
+  api.FollowersListResponse:
+    properties:
+      followers:
+        items:
+          $ref: '#/definitions/api.UserResponse'
+        type: array
+    type: object
+  api.FollowingListResponse:
+    properties:
+      following:
+        items:
+          $ref: '#/definitions/api.UserResponse'
+        type: array
+    type: object
+  api.ProductResponse:
+    properties:
+      brand:
+        type: string
+      product_id:
+        type: integer
+      product_name:
+        type: string
+      type:
+        type: string
+    type: object
+  api.PublishProductRequest:
+    properties:
+      category:
+        type: integer
+      date:
+        type: string
+      price:
+        type: number
+      product:
+        properties:
+          brand:
+            type: string
+          color:
+            type: string
+          notes:
+            type: string
+          product_id:
+            type: integer
+          product_name:
+            type: string
+          type:
+            type: string
+        type: object
+      user_id:
+        type: integer
+    type: object
+  api.PublishPromoRequest:
+    properties:
+      category:
+        type: string
+      date:
+        type: string
+      discount:
+        type: number
+      has_promo:
+        type: boolean
+      price:
+        type: number
+      product:
+        properties:
+          brand:
+            type: string
+          color:
+            type: string
+          notes:
+            type: string
+          price:
+            type: number
+          product_id:
+            type: integer
+          product_name:
+            type: string
+          type:
+            type: string
+        type: object
+      user_id:
+        type: integer
+    type: object
+  api.SellerPromotionsCountResponse:
+    properties:
+      promo_count:
+        type: integer
+      seller_id:
+        type: integer
+    type: object
+  api.UserResponse:
+    properties:
+      id:
+        type: integer
+      is_seller:
+        type: boolean
+      name:
+        type: string
+    type: object
+  api.UsersListResponse:
+    properties:
+      users:
+        items:
+          $ref: '#/definitions/api.UserResponse'
+        type: array
+    type: object
+  internal_post_infrastructure_api.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+  internal_post_infrastructure_api.PostResponse:
+    properties:
+      category:
+        type: integer
+      content:
+        type: string
+      created_at:
+        type: string
+      date:
+        type: string
+      discount:
+        type: number
+      has_promo:
+        type: boolean
+      id:
+        type: integer
+      price:
+        type: number
+      product:
+        $ref: '#/definitions/api.ProductResponse'
+      promo_ends_at:
+        type: string
+      user_id:
+        type: integer
+    type: object
+  internal_user_infrastructure_api.ErrorResponse:
+    properties:
+      error:
+        type: string
+    type: object
+info:
+  contact: {}
+  description: API Rest para SocialMeli (followers, posts, promoçōes)
+  title: SocialMeli API
+  version: "1.0"
+paths:
+  /products/followed/{userId}/list:
+    get:
+      description: Retorna publicações dos vendedores seguidos nas últimas semanas
+        (default=2). Suporta ordenação por data.
+      parameters:
+      - description: ID do usuário
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: Ordenação
+        enum:
+        - date_asc
+        - date_desc
+        in: query
+        name: order
+        type: string
+      - description: Quantidade de semanas (default 2)
+        in: query
+        name: weeks
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.FollowedPostsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_user_infrastructure_api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_user_infrastructure_api.ErrorResponse'
+      summary: Feed de publicações de vendedores seguidos
+      tags:
+      - Feed
+  /products/followed/latest/{userId}:
+    get:
+      description: Retorna publicações dos vendedores seguidos nas últimas semanas
+        (default=2). Suporta ordenação por data.
+      parameters:
+      - description: ID do usuário
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: Ordenação
+        enum:
+        - date_asc
+        - date_desc
+        in: query
+        name: order
+        type: string
+      - description: Quantidade de semanas (default 2)
+        in: query
+        name: weeks
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.FollowedPostsResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_user_infrastructure_api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_user_infrastructure_api.ErrorResponse'
+      summary: Feed de publicações de vendedores seguidos
+      tags:
+      - Feed
+  /products/promo-pub:
+    post:
+      consumes:
+      - application/json
+      description: Cria uma publicação promocional (has_promo=true e discount > 0).
+        Apenas sellers podem publicar.
+      parameters:
+      - description: Payload de promoção
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/api.PublishPromoRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            additionalProperties:
+              type: string
+            type: object
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_post_infrastructure_api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_post_infrastructure_api.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/internal_post_infrastructure_api.ErrorResponse'
+      summary: Publicar produto promocional
+      tags:
+      - Promotions
+  /products/publish:
+    post:
+      consumes:
+      - application/json
+      description: Cria uma publicação de produto (não promocional). Apenas sellers
+        podem publicar.
+      parameters:
+      - description: Payload de publicação
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/api.PublishProductRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/internal_post_infrastructure_api.PostResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_post_infrastructure_api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_post_infrastructure_api.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/internal_post_infrastructure_api.ErrorResponse'
+      summary: Publicar produto
+      tags:
+      - Products
+  /sellers/{sellerId}/promotions/count:
+    get:
+      description: Retorna a quantidade de publicações promocionais de um vendedor
+      parameters:
+      - description: ID do vendedor
+        in: path
+        name: sellerId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.SellerPromotionsCountResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_user_infrastructure_api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_user_infrastructure_api.ErrorResponse'
+      summary: Contagem de promoções por vendedor
+      tags:
+      - Promotions
+  /users:
+    get:
+      description: Retorna todos os usuários
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.UsersListResponse'
+      summary: Listar usuários
+      tags:
+      - Users
+    post:
+      consumes:
+      - application/json
+      description: Cria um novo usuário (seller ou buyer)
+      parameters:
+      - description: Dados do usuário
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/api.CreateUserRequest'
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/api.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_user_infrastructure_api.ErrorResponse'
+      summary: Criar usuário
+      tags:
+      - Users
+  /users/{userId}:
+    get:
+      description: Retorna um usuário pelo ID
+      parameters:
+      - description: ID do usuário
+        in: path
+        name: userId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.UserResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_user_infrastructure_api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_user_infrastructure_api.ErrorResponse'
+      summary: Detalhar usuário
+      tags:
+      - Users
+    put:
+      consumes:
+      - application/json
+      description: Atualiza nome e/ou flag de vendedor
+      parameters:
+      - description: ID do usuário
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: Campos atualizáveis
+        in: body
+        name: body
+        required: true
+        schema:
+          $ref: '#/definitions/api.CreateUserRequest'
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_user_infrastructure_api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_user_infrastructure_api.ErrorResponse'
+      summary: Atualizar usuário
+      tags:
+      - Users
+  /users/{userId}/follow/{sellerId}:
+    delete:
+      description: Remove relacionamento de follow existente
+      parameters:
+      - description: ID do usuário (follower)
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: ID do vendedor (seller)
+        in: path
+        name: sellerId
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_user_infrastructure_api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_user_infrastructure_api.ErrorResponse'
+      summary: Deixar de seguir vendedor
+      tags:
+      - Follow
+    post:
+      description: Cria relacionamento de follow entre usuário e vendedor
+      parameters:
+      - description: ID do usuário (follower)
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: ID do vendedor (seller)
+        in: path
+        name: sellerId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "201":
+          description: Created
+          schema:
+            $ref: '#/definitions/api.FollowResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_user_infrastructure_api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_user_infrastructure_api.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/internal_user_infrastructure_api.ErrorResponse'
+      summary: Seguir vendedor
+      tags:
+      - Follow
+  /users/{userId}/followed/list:
+    get:
+      description: Retorna a lista de vendedores seguidos por um usuário. Permite
+        ordenação por nome.
+      parameters:
+      - description: ID do usuário
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: Ordenação
+        enum:
+        - name_asc
+        - name_desc
+        in: query
+        name: order
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.FollowingListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_user_infrastructure_api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_user_infrastructure_api.ErrorResponse'
+      summary: Lista de vendedores seguidos
+      tags:
+      - Following
+  /users/{userId}/followers/count:
+    get:
+      description: Retorna a quantidade de seguidores de um vendedor
+      parameters:
+      - description: ID do usuário (vendedor)
+        in: path
+        name: userId
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.FollowersCountResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_user_infrastructure_api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_user_infrastructure_api.ErrorResponse'
+      summary: Contagem de seguidores
+      tags:
+      - Followers
+  /users/{userId}/followers/list:
+    get:
+      description: Retorna a lista de seguidores de um vendedor. Permite ordenação
+        por nome.
+      parameters:
+      - description: ID do usuário (vendedor)
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: Ordenação
+        enum:
+        - name_asc
+        - name_desc
+        in: query
+        name: order
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.FollowersListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_user_infrastructure_api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_user_infrastructure_api.ErrorResponse'
+      summary: Lista de seguidores
+      tags:
+      - Followers
+  /users/{userId}/following/list:
+    get:
+      description: Retorna a lista de vendedores seguidos por um usuário. Permite
+        ordenação por nome.
+      parameters:
+      - description: ID do usuário
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: Ordenação
+        enum:
+        - name_asc
+        - name_desc
+        in: query
+        name: order
+        type: string
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.FollowingListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_user_infrastructure_api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_user_infrastructure_api.ErrorResponse'
+      summary: Lista de vendedores seguidos
+      tags:
+      - Following
+schemes:
+- http
+swagger: "2.0"
