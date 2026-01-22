@@ -1,9 +1,18 @@
+// @title SocialMeli API
+// @version 1.0
+// @description API Rest para SocialMeli (followers, posts, promoçōes)
+// @BasePath /
+// @schemes http
+
 package main
 
 import (
 	"log"
 	"net/http"
 	"os"
+
+	_ "github.com/RLdAB/API-Social-ML/docs"
+	httpSwagger "github.com/swaggo/http-swagger/v2"
 
 	postApplication "github.com/RLdAB/API-Social-ML/internal/post/application"
 	postApi "github.com/RLdAB/API-Social-ML/internal/post/infrastructure/api"
@@ -41,7 +50,19 @@ func main() {
 	log.Println("Handler OK")
 	// 3 - Configuraçāo do Router
 	r := chi.NewRouter()
-	r.Use(middleware.RedirectSlashes)
+
+	// 1) middlewares primeiro
+	r.Use(middleware.Logger)
+	r.Use(middleware.Recoverer)
+	//r.Use(middleware.RedirectSlashes)
+
+	// 2) rota do swagger antes ou depois do setupRoutes (tanto faz),
+	// desde que ainda não tenha chamado r.Use depois.
+	r.Get("/swagger/*", httpSwagger.Handler(
+		httpSwagger.URL("/swagger/doc.json"),
+	))
+
+	// 3) rotas da API
 	setupRoutes(r, userHandler, postHandlers)
 	log.Println("Rotas OK")
 	log.Println("Iniciando API Social Meli")
