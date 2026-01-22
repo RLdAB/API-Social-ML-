@@ -11,8 +11,8 @@ import (
 	userApplication "github.com/RLdAB/API-Social-ML/internal/user/application"
 	userApi "github.com/RLdAB/API-Social-ML/internal/user/infrastructure/api"
 	userPersistence "github.com/RLdAB/API-Social-ML/internal/user/infrastructure/persistence"
-
 	"github.com/go-chi/chi/v5"
+	"github.com/go-chi/chi/v5/middleware"
 )
 
 func main() {
@@ -41,6 +41,7 @@ func main() {
 	log.Println("Handler OK")
 	// 3 - Configuraçāo do Router
 	r := chi.NewRouter()
+	r.Use(middleware.RedirectSlashes)
 	setupRoutes(r, userHandler, postHandlers)
 	log.Println("Rotas OK")
 	log.Println("Iniciando API Social Meli")
