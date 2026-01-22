@@ -7,25 +7,40 @@ import (
 )
 
 func setupRoutes(r *chi.Mux, userHandlers *userapi.UserHandlers, postHandlers *postapi.PostHandlers) {
-	// Rotas do User
-	r.Post("/users", userHandlers.CreateUser)                                           // US-0001
-	r.Post("/users/{userId}/follow/{sellerId}", userHandlers.FollowUser)                // US-0001
-	r.Get("/users/{userId}/followers/list", userHandlers.GetFollowerList)               // US-0003
-	r.Get("/users/{userId}/followers/count", userHandlers.GetFollowersCount)            // US-0002
-	r.Get("/users/{userId}/following/list", userHandlers.GetFollowingList)              // US-0004
-	r.Post("/posts", userHandlers.CreatePost)                                           // US-0005
-	r.Get("/products/followed/latest/{userId}", userHandlers.GetRecentFollowedPosts)    // US-0006
-	r.Delete("/users/{userId}/follow/{sellerId}", userHandlers.UnfollowUser)            // US-0007
-	r.Get("/users/{userId}/followers/list", userHandlers.GetFollowerList)               // US-0008
-	r.Get("/users/{userId}/followed/list", userHandlers.GetFollowingList)               // US-0008
-	r.Get("/products/followed/{userId}/list", userHandlers.GetRecentFollowedPosts)      // US-0009
-	r.Get("/sellers/{sellerId}/promotions/count", userHandlers.CountPromotionsBySeller) // US-0011
-	r.Get("/users", userHandlers.ListUsers)
-	r.Get("/users/{userId}", userHandlers.GetUserByID)
-	r.Put("/users/{userId}", userHandlers.UpdateUser)
+	// ========== USERS ==========
+	r.Route("/users", func(r chi.Router) {
+		// CRUD
+		r.Post("/", userHandlers.CreateUser)
+		r.Get("/", userHandlers.ListUsers)
+		r.Get("/{userId}", userHandlers.GetUserByID)
+		r.Put("/{userId}", userHandlers.UpdateUser)
 
-	// Rotas de Produtos/Promoções
-	r.Route("/products", func(r chi.Router) {
-		r.Post("/promo-pub", postHandlers.CreatePromoPost) // US-0010
+		// Follow / Unfollow (US-0001 / US-0007)
+		r.Post("/{userId}/follow/{sellerId}", userHandlers.FollowUser)
+		r.Delete("/{userId}/follow/{sellerId}", userHandlers.UnfollowUser)
+
+		// Followers (US-0002 / US-0003 / US-0008 via ?order=name_asc|name_desc)
+		r.Get("/{userId}/followers/count", userHandlers.GetFollowersCount)
+		r.Get("/{userId}/followers/list", userHandlers.GetFollowerList)
+
+		// Following (US-0004 / US-0008 via ?order=name_asc|name_desc)
+		r.Get("/{userId}/following/list", userHandlers.GetFollowingList)
+		// Alias compatível com enunciado
+		r.Get("/{userId}/followed/list", userHandlers.GetFollowingList)
 	})
+
+	// Feed de seguidos (US-0006 / US-0009)
+	r.Route("/products/followed", func(r chi.Router) {
+		r.Get("/latest/{userId}", userHandlers.GetRecentFollowedPosts) // latest (últimas 2 semanas)
+		r.Get("/{userId}/list", userHandlers.GetRecentFollowedPosts)   // list + order=date_asc|date_desc
+	})
+
+	// Produtos (US-0005) e Promoções (US-0010)
+	r.Route("/products", func(r chi.Router) {
+		r.Post("/publish", postHandlers.CreateProductPost)
+		r.Post("/promo-pub", postHandlers.CreatePromoProductPost)
+	})
+
+	// Métricas promo (US-0011)
+	r.Get("/sellers/{sellerId}/promotions/count", userHandlers.CountPromotionsBySeller)
 }
