@@ -475,35 +475,6 @@ paths:
       tags:
       - Users
   /users/{userId}/follow/{sellerId}:
-    delete:
-      description: Remove relacionamento de follow existente
-      parameters:
-      - description: ID do usuário (follower)
-        in: path
-        name: userId
-        required: true
-        type: integer
-      - description: ID do vendedor (seller)
-        in: path
-        name: sellerId
-        required: true
-        type: integer
-      responses:
-        "204":
-          description: No Content
-          schema:
-            type: string
-        "400":
-          description: Bad Request
-          schema:
-            $ref: '#/definitions/internal_user_infrastructure_api.ErrorResponse'
-        "404":
-          description: Not Found
-          schema:
-            $ref: '#/definitions/internal_user_infrastructure_api.ErrorResponse'
-      summary: Deixar de seguir vendedor
-      tags:
-      - Follow
     post:
       description: Cria relacionamento de follow entre usuário e vendedor
       parameters:
@@ -537,6 +508,35 @@ paths:
           schema:
             $ref: '#/definitions/internal_user_infrastructure_api.ErrorResponse'
       summary: Seguir vendedor
+      tags:
+      - Follow
+    put:
+      description: Remove relacionamento de follow existente
+      parameters:
+      - description: ID do usuário (follower)
+        in: path
+        name: userId
+        required: true
+        type: integer
+      - description: ID do vendedor (seller)
+        in: path
+        name: sellerId
+        required: true
+        type: integer
+      responses:
+        "204":
+          description: No Content
+          schema:
+            type: string
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_user_infrastructure_api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_user_infrastructure_api.ErrorResponse'
+      summary: Deixar de seguir vendedor
       tags:
       - Follow
   /users/{userId}/followed/list:

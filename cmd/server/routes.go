@@ -17,7 +17,7 @@ func setupRoutes(r *chi.Mux, userHandlers *userapi.UserHandlers, postHandlers *p
 
 		// Follow / Unfollow (US-0001 / US-0007)
 		r.Post("/{userId}/follow/{sellerId}", userHandlers.FollowUser)
-		r.Delete("/{userId}/follow/{sellerId}", userHandlers.UnfollowUser)
+		r.Put("/{userId}/follow/{sellerId}", userHandlers.UnfollowUser)
 
 		// Followers (US-0002 / US-0003 / US-0008 via ?order=name_asc|name_desc)
 		r.Get("/{userId}/followers/count", userHandlers.GetFollowersCount)
