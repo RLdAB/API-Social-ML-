@@ -69,3 +69,12 @@ func (r *GormPostRepository) GetRecentPromoPosts(userID uint, weeks int) ([]doma
 
 	return posts, err
 }
+
+func (r *GormPostRepository) GetPromoPostsBySeller(sellerID uint) ([]domain.Post, error) {
+	var posts []domain.Post
+	err := r.db.
+		Where("user_id = ? AND has_promo = ?", sellerID, true).
+		Order("created_at DESC").
+		Find(&posts).Error
+	return posts, err
+}

@@ -143,3 +143,22 @@ func (s *PostService) CreateProduct(p postdomain.ProductPayload) (*postdomain.Po
 	}
 	return &post, nil
 }
+
+func (s *PostService) ListPromoPostsBySeller(userID uint) ([]postdomain.Post, string, error) {
+	// 1) validar user existe e é seller
+	user, err := s.userRepo.FindByID(userID)
+	if err != nil {
+		return nil, "", err
+	}
+	if !user.IsSeller {
+		return nil, "", errors.New("user is not a seller")
+	}
+
+	// 2) buscar promo posts no repo
+	posts, err := s.postRepo.GetPromoPostsBySeller(userID)
+	if err != nil {
+		return nil, "", err
+	}
+
+	return posts, user.Name, nil
+}

@@ -39,8 +39,11 @@ func setupRoutes(r *chi.Mux, userHandlers *userapi.UserHandlers, postHandlers *p
 	r.Route("/products", func(r chi.Router) {
 		r.Post("/publish", postHandlers.CreateProductPost)
 		r.Post("/promo-pub", postHandlers.CreatePromoProductPost)
+		// US-0012
+		r.Get("/promo-pub/list", postHandlers.ListPromoPostsBySeller)
 	})
 
 	// Métricas promo (US-0011)
 	r.Get("/sellers/{sellerId}/promotions/count", userHandlers.CountPromotionsBySeller)
+
 }

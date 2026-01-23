@@ -78,6 +78,17 @@ definitions:
       type:
         type: string
     type: object
+  api.PromoPostsListResponse:
+    properties:
+      posts:
+        items:
+          $ref: '#/definitions/internal_post_infrastructure_api.PostResponse'
+        type: array
+      user_id:
+        type: integer
+      user_name:
+        type: string
+    type: object
   api.PublishProductRequest:
     properties:
       category:
@@ -313,6 +324,37 @@ paths:
           schema:
             $ref: '#/definitions/internal_post_infrastructure_api.ErrorResponse'
       summary: Publicar produto promocional
+      tags:
+      - Promotions
+  /products/promo-pub/list:
+    get:
+      description: Retorna todas as publicaçōes em promoçāo de um vendedor (has_promo=true)
+      parameters:
+      - description: ID do vendedor
+        in: query
+        name: user_id
+        required: true
+        type: integer
+      produces:
+      - application/json
+      responses:
+        "200":
+          description: OK
+          schema:
+            $ref: '#/definitions/api.PromoPostsListResponse'
+        "400":
+          description: Bad Request
+          schema:
+            $ref: '#/definitions/internal_post_infrastructure_api.ErrorResponse'
+        "404":
+          description: Not Found
+          schema:
+            $ref: '#/definitions/internal_post_infrastructure_api.ErrorResponse'
+        "422":
+          description: Unprocessable Entity
+          schema:
+            $ref: '#/definitions/internal_post_infrastructure_api.ErrorResponse'
+      summary: Listar publicaçōes promocionais do vendedor
       tags:
       - Promotions
   /products/publish:

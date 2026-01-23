@@ -26,4 +26,5 @@ type PostRepository interface {
 	GetRecentFollowedPosts(followerID uint, weeks int, order string) ([]Post, error)
 	CountPromotionsBySeller(sellerID uint) (int, error)
 	GetRecentPromoPosts(userID uint, weeks int) ([]Post, error)
+	GetPromoPostsBySeller(sellerID uint) ([]Post, error)
 }

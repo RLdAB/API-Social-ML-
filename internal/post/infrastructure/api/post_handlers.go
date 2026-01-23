@@ -3,6 +3,7 @@ package api
 import (
 	"encoding/json"
 	"net/http"
+	"strconv"
 
 	"github.com/RLdAB/API-Social-ML/internal/post/application"
 	postdomain "github.com/RLdAB/API-Social-ML/internal/post/domain"
@@ -92,4 +93,49 @@ func (h *PostHandlers) CreatePromoProductPost(w http.ResponseWriter, r *http.Req
 	w.Header().Set("Content-Type", "application/json")
 	w.WriteHeader(http.StatusCreated)
 	_ = json.NewEncoder(w).Encode(map[string]string{"message": "promo published"})
+}
+
+// ListPromoPostsBySeller godoc
+// @Summary Listar publicaçōes promocionais do vendedor
+// @Description Retorna todas as publicaçōes em promoçāo de um vendedor (has_promo=true)
+// @Tags Promotions
+// @Produce json
+// @Param user_id query int true "ID do vendedor"
+// @Success 200 {object} api.PromoPostsListResponse
+// @Failure 400 {object} api.ErrorResponse
+// @Failure 404 {object} api.ErrorResponse
+// @Failure 422 {object} api.ErrorResponse
+// @Router /products/promo-pub/list [get]
+func (h *PostHandlers) ListPromoPostsBySeller(w http.ResponseWriter, r *http.Request) {
+	userIDStr := r.URL.Query().Get("user_id")
+	if userIDStr == "" {
+		writeError(w, http.StatusBadRequest, "user_id is required")
+		return
+	}
+
+	userID64, err := strconv.ParseUint(userIDStr, 10, 32)
+	if err != nil || userID64 == 0 {
+		writeError(w, http.StatusBadRequest, "invalid user_id")
+		return
+	}
+	userID := uint(userID64)
+
+	posts, userName, err := h.postService.ListPromoPostsBySeller(userID)
+	if err != nil {
+		writeError(w, http.StatusBadRequest, err.Error())
+		return
+	}
+
+	respPosts := make([]PostResponse, 0, len(posts))
+	for _, p := range posts {
+		cp := p
+		respPosts = append(respPosts, toPostResponse(&cp))
+	}
+
+	w.Header().Set("Content-Type", "application/json")
+	_ = json.NewEncoder(w).Encode(PromoPostsListResponse{
+		UserID:   userID,
+		UserName: userName,
+		Posts:    respPosts,
+	})
 }
