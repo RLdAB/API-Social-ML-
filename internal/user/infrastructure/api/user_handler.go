@@ -222,7 +222,7 @@ func (h *UserHandlers) CreateUser(w http.ResponseWriter, r *http.Request) {
 // @Success 204 {string} string "No Content"
 // @Failure 400 {object} api.ErrorResponse
 // @Failure 404 {object} api.ErrorResponse
-// @Router /users/{userId}/follow/{sellerId} [delete]
+// @Router /users/{userId}/follow/{sellerId} [put]
 func (h *UserHandlers) UnfollowUser(w http.ResponseWriter, r *http.Request) {
 	userID, err := strconv.Atoi(chi.URLParam(r, "userId"))
 	if err != nil {

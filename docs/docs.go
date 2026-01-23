@@ -425,6 +425,49 @@ const docTemplate = `{
             }
         },
         "/users/{userId}/follow/{sellerId}": {
+            "put": {
+                "description": "Remove relacionamento de follow existente",
+                "tags": [
+                    "Follow"
+                ],
+                "summary": "Deixar de seguir vendedor",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID do usuário (follower)",
+                        "name": "userId",
+                        "in": "path",
+                        "required": true
+                    },
+                    {
+                        "type": "integer",
+                        "description": "ID do vendedor (seller)",
+                        "name": "sellerId",
+                        "in": "path",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "204": {
+                        "description": "No Content",
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_user_infrastructure_api.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/internal_user_infrastructure_api.ErrorResponse"
+                        }
+                    }
+                }
+            },
             "post": {
                 "description": "Cria relacionamento de follow entre usuário e vendedor",
                 "produces": [
@@ -471,49 +514,6 @@ const docTemplate = `{
                     },
                     "422": {
                         "description": "Unprocessable Entity",
-                        "schema": {
-                            "$ref": "#/definitions/internal_user_infrastructure_api.ErrorResponse"
-                        }
-                    }
-                }
-            },
-            "delete": {
-                "description": "Remove relacionamento de follow existente",
-                "tags": [
-                    "Follow"
-                ],
-                "summary": "Deixar de seguir vendedor",
-                "parameters": [
-                    {
-                        "type": "integer",
-                        "description": "ID do usuário (follower)",
-                        "name": "userId",
-                        "in": "path",
-                        "required": true
-                    },
-                    {
-                        "type": "integer",
-                        "description": "ID do vendedor (seller)",
-                        "name": "sellerId",
-                        "in": "path",
-                        "required": true
-                    }
-                ],
-                "responses": {
-                    "204": {
-                        "description": "No Content",
-                        "schema": {
-                            "type": "string"
-                        }
-                    },
-                    "400": {
-                        "description": "Bad Request",
-                        "schema": {
-                            "$ref": "#/definitions/internal_user_infrastructure_api.ErrorResponse"
-                        }
-                    },
-                    "404": {
-                        "description": "Not Found",
                         "schema": {
                             "$ref": "#/definitions/internal_user_infrastructure_api.ErrorResponse"
                         }
