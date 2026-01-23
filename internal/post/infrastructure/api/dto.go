@@ -5,7 +5,6 @@ import (
 	"time"
 
 	postdomain "github.com/RLdAB/API-Social-ML/internal/post/domain"
-	
 )
 
 type ProductResponse struct {
@@ -61,4 +60,10 @@ func toPostResponse(p *postdomain.Post) PostResponse {
 		resp.PromoEnds = promoEnds
 	}
 	return resp
+}
+
+type PromoPostsListResponse struct {
+	UserID   uint           `json:"user_id"`
+	UserName string         `json:"user_name"`
+	Posts    []PostResponse `json:"posts"`
 }

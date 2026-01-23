@@ -180,6 +180,53 @@
                 }
             }
         },
+        "/products/promo-pub/list": {
+            "get": {
+                "description": "Retorna todas as publicaçōes em promoçāo de um vendedor (has_promo=true)",
+                "produces": [
+                    "application/json"
+                ],
+                "tags": [
+                    "Promotions"
+                ],
+                "summary": "Listar publicaçōes promocionais do vendedor",
+                "parameters": [
+                    {
+                        "type": "integer",
+                        "description": "ID do vendedor",
+                        "name": "user_id",
+                        "in": "query",
+                        "required": true
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "description": "OK",
+                        "schema": {
+                            "$ref": "#/definitions/api.PromoPostsListResponse"
+                        }
+                    },
+                    "400": {
+                        "description": "Bad Request",
+                        "schema": {
+                            "$ref": "#/definitions/internal_post_infrastructure_api.ErrorResponse"
+                        }
+                    },
+                    "404": {
+                        "description": "Not Found",
+                        "schema": {
+                            "$ref": "#/definitions/internal_post_infrastructure_api.ErrorResponse"
+                        }
+                    },
+                    "422": {
+                        "description": "Unprocessable Entity",
+                        "schema": {
+                            "$ref": "#/definitions/internal_post_infrastructure_api.ErrorResponse"
+                        }
+                    }
+                }
+            }
+        },
         "/products/publish": {
             "post": {
                 "description": "Cria uma publicação de produto (não promocional). Apenas sellers podem publicar.",
@@ -830,6 +877,23 @@
                     "type": "string"
                 },
                 "type": {
+                    "type": "string"
+                }
+            }
+        },
+        "api.PromoPostsListResponse": {
+            "type": "object",
+            "properties": {
+                "posts": {
+                    "type": "array",
+                    "items": {
+                        "$ref": "#/definitions/internal_post_infrastructure_api.PostResponse"
+                    }
+                },
+                "user_id": {
+                    "type": "integer"
+                },
+                "user_name": {
                     "type": "string"
                 }
             }
